@@ -75,3 +75,32 @@ pytest
 
 The included unit test validates the S3 export pipeline end-to-end using a lightweight in-memory
 stub, so no AWS resources are required.
+
+## Deploying with Terraform
+
+Infrastructure for the Lambda function and its supporting AWS resources is described in
+`terraform/`. The configuration expects a pre-built deployment ZIP that contains the
+`personal_finance_app` package and its dependencies. One way to generate the artifact is:
+
+```bash
+mkdir -p dist/package
+pip install -r requirements.txt --target dist/package
+cp -R src/personal_finance_app dist/package/
+(cd dist/package && zip -r ../lambda.zip .)
+```
+
+With the deployment bundle in place, provision the AWS resources:
+
+```bash
+cd terraform
+terraform init
+terraform apply \
+  -var "s3_bucket_name=your-unique-bucket-name" \
+  -var "plaid_client_id=..." \
+  -var "plaid_secret=..."
+```
+
+Overrides such as the AWS region, Plaid environment, or object prefix can be supplied via
+additional `-var` arguments or a `terraform.tfvars` file. Sensitive values (e.g., the Plaid
+secret) should be stored securely using Terraform variable files or a secrets manager rather than
+hard-coding them in source control.

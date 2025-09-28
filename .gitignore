@@ -3,3 +3,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 .DS_Store
+.terraform/
+terraform/.terraform.lock.hcl
+terraform.tfstate*
+dist/
+*.zip
